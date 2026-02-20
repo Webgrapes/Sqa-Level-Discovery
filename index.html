@@ -346,6 +346,7 @@
 var SHEETS_ENDPOINT = 'https://t8f.0be.myftpupload.com/wp-json/sqa/v1/save-exam/';
 var ORAL_PROXY = 'https://script.google.com/macros/s/AKfycbw-BNRxesvKZNPW53iqnoc_Z7elS3QUlsv2Wuvg1krhuJVIWseI9d0pa_0gDns90TsYTw/exec';
 var MAX_ORAL_Q = 8;
+var URL = 'https://t8f.0be.myftpupload.com';
 var S = function(id){return document.querySelector(id)};
 
 // ── STATE ──
@@ -516,7 +517,7 @@ async function submitAll(){
   msg.innerHTML='<span class="spinner"></span> Saving your results...';msg.className='submit-msg';
   var bs=['Pre-A1','A1','A2','B1','B2','C1'].map(function(b){return b+': '+(writtenResult.bandScores[b]||0)+'/'+(writtenResult.bandTotals[b]||0)}).join(', ');
   var record={timestamp:new Date().toISOString(),consent:consent?'Y':'N',name:studentInfo.name||'',email:studentInfo.email||'',phone:studentInfo.phone||'',country:studentInfo.country||'',writtenCEFR:writtenResult.cefr,writtenScore:writtenResult.totalCorrect+'/'+writtenResult.totalQuestions,writtenBands:bs,oralCEFR:oralResult.cefr,oralStrengths:oralResult.strengths,oralImprovements:oralResult.improvements,transcript:oralResult.transcript,overallCEFR:S('#r-overall').textContent,overallRec:S('#r-overall-rec').textContent,testType:'combined',sendEmail:consent&&studentInfo.email?'Y':'N'};
-  try{var fb=new URLSearchParams();fb.append('data',JSON.stringify(record));var res=await fetch(SHEETS_ENDPOINT,{method:'POST',body:fb});if(res.ok){msg.innerHTML='✅ Results saved!';msg.className='submit-msg ok'}else throw new Error()}catch(e){msg.innerHTML='⚠️ Could not save. Please screenshot your results.';msg.className='submit-msg err'}
+  try{var fb=new URLSearchParams();fb.append('data',JSON.stringify(record));var res=await fetch(SHEETS_ENDPOINT,{method:'POST',body:fb});if(res.ok){msg.innerHTML='✅ Results saved!';msg.className='submit-msg ok';window.parent.postMessage({ type: "EXAM_SUBMITTED", payload: { fname: studentInfo.name || '',email: studentInfo.email || '',phone_number: studentInfo.phone || '', country: studentInfo.country || '', class_result: S('#r-overall').textContent}}, URL);  }else throw new Error()}catch(e){msg.innerHTML='⚠️ Could not save. Please screenshot your results.';msg.className='submit-msg err'}
 }
 
 // ══════════════════════════════════════
