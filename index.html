@@ -68,6 +68,10 @@
     .phone-sub{font-weight:500;font-size:.68rem;color:var(--text-light);margin-bottom:3px;display:block}
     .field-err{font-size:.76rem;color:var(--error);margin-top:4px;display:block}
     .form-note{font-size:.74rem;color:var(--text-light);text-align:center;margin-top:6px}
+    .form-check.form-check-inline{display:flex;}
+    .form-check.form-check-inline input,.form-check.form-check-inline label{width: auto;}
+    .form-check.form-check-inline label{font-weight: normal;margin-left: 15px;margin-top: 5px;}
+    .form-check.form-check-inline input{border:none;background:none;box-shadow:none}  
 
     /* Choice */
     .choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
@@ -241,6 +245,8 @@
           <span id="err-phone" class="field-err hidden">Please enter your area code and phone number.</span>
         </div>
         <div class="form-group"><label>Country of Origin</label><input type="text" id="f-country" placeholder="e.g. Brazil"></div>
+        <div class="form-group"><label>Where did you hear about us? <span class="req">*</span></label>
+        <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="referal" id="inlineRadio1" value="instagram" checked><label class="form-check-label" for="inlineRadio1">Instagram</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="referal" id="inlineRadio2" value="facebook"><label class="form-check-label" for="inlineRadio2">Facebook</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="referal" id="inlineRadio3" value="friend-family"><label class="form-check-label" for="inlineRadio3">Friend-Family</label></div><div class="form-check form-check-inline">  <input class="form-check-input" type="radio" name="referal" id="inlineRadio4" value="alliance-services">  <label class="form-check-label" for="inlineRadio5">Alliance Services</label></div><div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="referal" id="inlineRadio6" value="other"><label class="form-check-label" for="inlineRadio3">Other</label></div></div>
       </div>
       <button id="btn-go-choice" class="btn btn-gold btn-full">Continue →</button>
       <p class="form-note">Fields marked with <span class="req">*</span> are required.</p>
@@ -342,11 +348,9 @@
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 (function(){
 'use strict';
-//var SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxfVP9KPWSyKKuprnpWQ0SWHogHAFOlm6MDxrtdRUt3A__KOw_ZAs4vUYwU6MPdq96nZg/exec';
-var SHEETS_ENDPOINT = 'https://t8f.0be.myftpupload.com/wp-json/sqa/v1/save-exam/';
+var SHEETS_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxfVP9KPWSyKKuprnpWQ0SWHogHAFOlm6MDxrtdRUt3A__KOw_ZAs4vUYwU6MPdq96nZg/exec';
 var ORAL_PROXY = 'https://script.google.com/macros/s/AKfycbw-BNRxesvKZNPW53iqnoc_Z7elS3QUlsv2Wuvg1krhuJVIWseI9d0pa_0gDns90TsYTw/exec';
 var MAX_ORAL_Q = 8;
-var URL = 'https://t8f.0be.myftpupload.com';
 var S = function(id){return document.querySelector(id)};
 
 // ── STATE ──
@@ -516,8 +520,8 @@ async function submitAll(){
   var st=S('#submit-area'),msg=S('#submit-msg');st.classList.remove('hidden');
   msg.innerHTML='<span class="spinner"></span> Saving your results...';msg.className='submit-msg';
   var bs=['Pre-A1','A1','A2','B1','B2','C1'].map(function(b){return b+': '+(writtenResult.bandScores[b]||0)+'/'+(writtenResult.bandTotals[b]||0)}).join(', ');
-  var record={timestamp:new Date().toISOString(),consent:consent?'Y':'N',name:studentInfo.name||'',email:studentInfo.email||'',phone:studentInfo.phone||'',country:studentInfo.country||'',writtenCEFR:writtenResult.cefr,writtenScore:writtenResult.totalCorrect+'/'+writtenResult.totalQuestions,writtenBands:bs,oralCEFR:oralResult.cefr,oralStrengths:oralResult.strengths,oralImprovements:oralResult.improvements,transcript:oralResult.transcript,overallCEFR:S('#r-overall').textContent,overallRec:S('#r-overall-rec').textContent,testType:'combined',sendEmail:consent&&studentInfo.email?'Y':'N'};
-  try{var fb=new URLSearchParams();fb.append('data',JSON.stringify(record));var res=await fetch(SHEETS_ENDPOINT,{method:'POST',body:fb});if(res.ok){msg.innerHTML='✅ Results saved!';msg.className='submit-msg ok';window.parent.postMessage({ type: "EXAM_SUBMITTED", payload: { fname: studentInfo.name || '',email: studentInfo.email || '',phone_number: studentInfo.phone || '', country: studentInfo.country || '', class_result: S('#r-overall').textContent}}, URL);  }else throw new Error()}catch(e){msg.innerHTML='⚠️ Could not save. Please screenshot your results.';msg.className='submit-msg err'}
+  var record={timestamp:new Date().toISOString(),consent:consent?'Y':'N',name:studentInfo.name||'',email:studentInfo.email||'',phone:studentInfo.phone||'',country:studentInfo.country||'',referel:studentInfo.referal,writtenCEFR:writtenResult.cefr,writtenScore:writtenResult.totalCorrect+'/'+writtenResult.totalQuestions,writtenBands:bs,oralCEFR:oralResult.cefr,oralStrengths:oralResult.strengths,oralImprovements:oralResult.improvements,transcript:oralResult.transcript,overallCEFR:S('#r-overall').textContent,overallRec:S('#r-overall-rec').textContent,testType:'combined',sendEmail:consent&&studentInfo.email?'Y':'N'};
+  try{var fb=new URLSearchParams();fb.append('data',JSON.stringify(record));var res=await fetch(SHEETS_ENDPOINT,{method:'POST',body:fb});if(res.ok){msg.innerHTML='✅ Results saved!';msg.className='submit-msg ok'}else throw new Error()}catch(e){msg.innerHTML='⚠️ Could not save. Please screenshot your results.';msg.className='submit-msg err'}
 }
 
 // ══════════════════════════════════════
@@ -527,11 +531,11 @@ S('#btn-go-info').addEventListener('click',function(){consent=S('#chk-consent').
 S('#f-email').addEventListener('blur',function(){var v=S('#f-email').value.trim();if(v&&!validEmail(v))S('#err-email').classList.remove('hidden');else S('#err-email').classList.add('hidden')});
 S('#btn-go-choice').addEventListener('click',function(){
   S('#err-email').classList.add('hidden');S('#err-phone').classList.add('hidden');
-  var nm=S('#f-name').value.trim(),em=S('#f-email').value.trim(),cc=S('#f-cc').value,ac=S('#f-area').value.trim(),pn=S('#f-phone').value.trim();
+  var nm=S('#f-name').value.trim(),em=S('#f-email').value.trim(),cc=S('#f-cc').value,ac=S('#f-area').value.trim(),pn=S('#f-phone').value.trim(),referalValue = S('input[name="referal"]:checked').value;
   if(!nm){alert('Please enter your name.');return}
   if(!em||!validEmail(em)){S('#err-email').classList.remove('hidden');S('#f-email').focus();return}
   if(!ac||!pn){S('#err-phone').classList.remove('hidden');return}
-  studentInfo={name:nm,email:em,phone:cc+' ('+ac+') '+pn,country:S('#f-country').value.trim()};
+  studentInfo={name:nm,email:em,phone:cc+' ('+ac+') '+pn,country:S('#f-country').value.trim(),referal:referalValue};
   // Check if email already exists in Google Sheets
   if(SHEETS_ENDPOINT){
     S('#btn-go-choice').disabled=true;S('#btn-go-choice').textContent='Checking...';
